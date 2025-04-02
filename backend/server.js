@@ -1,41 +1,31 @@
-require('dotenv').config();
-const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors'); // Importar CORS
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import pool from "./db.js";
+
+dotenv.config();
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000
 
-app.use(express.json());
-app.use(cors()); // Habilita CORS para que el frontend pueda hacer peticiones al backend
+// Middleware
+app.use(express.json()); // Para leer JSON en requests
+app.use(cors()); // Habilita CORS (útil si frontend y backend están separados)
 
-// Conectar a MySQL
-const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
-    waitForConnections: process.env.DB_waitForConnections === "true",
-    connectionLimit: Number(process.env.DB_connectionLimit), // Número de conexiones simultáneas permitidas
-    queueLimit: Number(process.env.DB_queueLimit),
-    connectTimeout: Number(process.env.DB_connectTimeout) // 20 segundos para evitar desconexión rápida
-
-});
-
-db.connect(err => {
-    if (err) {
-        console.error('Error conectando a MySQL:', err);
-        return;
+// Ruta de prueba para verificar conexión a la base de datos
+app.get("/test-db", async (req, res) => {
+    try {
+        const [rows] = await pool.query("SELECT p.ID, p.post_title AS nombre, s.meta_value AS stock FROM wpot_posts p JOIN wpot_postmeta s ON p.ID = s.post_id");
+        res.json({ success: true, result: rows[0].result });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
-    console.log('✅ Conectado a MySQL en Kinsta');
 });
 
-// Ruta de prueba
-app.get('/', (req, res) => {
-    res.send('API funcionando 🚀');
+// Ruta principal
+app.get("/", (req, res) => {
+    res.send("¡API funcionando!");
 });
 
-app.listen(PORT, () => {
-    console.log(`🔥 Servidor corriendo en http://localhost:${PORT}`);
-});
+// Iniciar servidor
+app.listen(PORT, () => console.log(`✅ Servidor corriendo en http://localhost:${PORT}`));
