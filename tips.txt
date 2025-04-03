@@ -1,0 +1,62 @@
+
+¡Genial! 🎉 Ahora ya tienes tu repositorio sincronizado correctamente.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Cuando sigas trabajando en tu proyecto, recuerda este flujo básico para evitar conflictos en el futuro:
+
+1️⃣ Antes de empezar a trabajar:
+
+git pull origin main --rebase
+
+(Así traes la versión más actualizada antes de hacer cambios).
+
+2️⃣ Después de hacer cambios:
+
+git add .
+git commit -m "Descripción de los cambios"
+git push origin main
+
+3.Verifica el estado del repositorio (opcional):
+git status
+Si no hay cambios pendientes, significa que todo está en main
+
+4.Ver en que rama estoy
+git branch
+
+5.Cambiar de Rama
+git checkout main
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+para levanar Backend(en la carpeta del BackEnd)
+npm start
+
+para levantar FrontEnd(en la carpeta del FrontEnd)
+npm run dev
+
+Para levantar puente con DB
+
+
+Reiniciar el túnel SSH (si usas uno)
+
+    Abre PowerShellen  o Terminal en cualquier carpeta.
+
+    Ejecuta nuevamente el comando para establecer el túnel SSH:
+
+ssh -L 3306:localhost:3306 httpswwwtresdpcomar@35.198.30.94 -p 27167
+
+Esto reestablecerá el túnel y podrás conectarte a la base de datos como lo hacías antes.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+en package.json
+"name": "my-app", 
+
+--------------------------------------------------------------------------------------------------------------------------------
