@@ -47,6 +47,9 @@ ssh -L 3306:localhost:3306 httpswwwtresdpcomar@35.198.30.94 -p 27167
 
 Esto reestablecerá el túnel y podrás conectarte a la base de datos como lo hacías antes.
 
+DESDE EL RAIS LEVANTA TODO
+npm run dev
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

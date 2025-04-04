@@ -5,6 +5,7 @@ import "./App.css";
 function App() {
   const [selectedOption, setSelectedOption] = useState("productos");
   const [data, setData] = useState([]);
+  const [inputs, setInputs] = useState({}); // Estado para los inputs
 
   useEffect(() => {
     fetchData(selectedOption);
@@ -13,10 +14,49 @@ function App() {
   const fetchData = async (option) => {
     try {
       const response = await axios.get(`http://localhost:5000/${option}`);
+      console.log("DATA RECIBIDA:", response.data.result);      
       setData(response.data.result);
     } catch (error) {
       console.error("Error al obtener datos:", error);
       setData([]);
+    }
+  };
+
+  // Manejar cambios en los inputs por fila
+  const handleInputChange = (index, field, value) => {
+    setInputs((prev) => ({
+      ...prev,
+      [`${index}-${field}`]: value,
+    }));
+  };
+
+  // Función para guardar los datos en el SP
+  const handleSave = async (item, index) => {
+    const codigoPedido = inputs[`${index}-codigoPedido`] || "";
+    const cantidad = inputs[`${index}-cantidad`] || "";
+
+    if (!codigoPedido || !cantidad) {
+      alert("Debe completar todos los campos.");
+      return;
+    }
+
+    try {
+      await axios.post("http://localhost:5000/guardarPedido", {
+        product_id: item.product_id,
+        variation_id: item.variation_id, // Si no tiene variación, enviará null
+        order_number: codigoPedido,
+        quantity : cantidad,
+      });
+
+      alert("Pedido guardado con éxito.");
+      setInputs((prev) => ({
+        ...prev,
+        [`${index}-codigoPedido`]: "",
+        [`${index}-cantidad`]: "",
+      }));
+    } catch (error) {
+      console.error("Error al guardar el pedido:", error);
+      alert("Hubo un error al guardar." + error);
     }
   };
 
@@ -56,6 +96,9 @@ function App() {
                       <th className="border p-2">ID</th>
                       <th className="border p-2">Nombre</th>
                       <th className="border p-2">Stock</th>
+                      <th className="border p-2">Código de Pedido</th>
+                      <th className="border p-2">Cantidad</th>
+                      <th className="border p-2">Acción</th>
                     </>
                   ) : (
                     <>
@@ -72,8 +115,31 @@ function App() {
                     {selectedOption === "productos" ? (
                       <>
                         <td className="border p-2">{item.product_id}</td>
-                        <td className="border p-2">{item.product_name}</td>
-                        <td className="border p-2">{item.stock}</td>
+                        <td className="border p-2">{item.variation_name}</td> 
+                        <td className="border p-2">
+                          <input
+                            type="text"
+                            className="border p-1 w-full bg-white text-black"
+                            value={inputs[`${index}-codigoPedido`] || ""}
+                            onChange={(e) => handleInputChange(index, "codigoPedido", e.target.value)}
+                          />
+                        </td>
+                        <td className="border p-2">
+                          <input
+                            type="text"
+                            className="border p-1 w-full bg-white text-black"
+                            value={inputs[`${index}-cantidad`] || ""}
+                            onChange={(e) => handleInputChange(index, "cantidad", e.target.value)}
+                          />
+                        </td>
+                        <td className="border p-2">
+                          <button
+                            className="bg-blue-500 text-white px-3 py-1 rounded"
+                            onClick={() => handleSave(item, index)}
+                          >
+                            Guardar
+                          </button>
+                        </td>
                       </>
                     ) : (
                       <>
