@@ -59,6 +59,26 @@ function App() {
     }
   };
 
+  const handleDelete = async (item) => {
+    const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este pedido?");
+    if (!confirmDelete) return;
+  
+    try {
+      await axios.delete("http://localhost:5000/eliminarPedido", {
+        data: {
+          product_id: item.product_id,
+          order_number: item.order_number,
+        },
+      });
+      alert("Pedido eliminado con éxito.");
+      fetchData("pedidos-pendientes"); // refrescar la tabla
+    } catch (error) {
+      console.error("Error al eliminar el pedido:", error);
+      alert("Hubo un error al eliminar.");
+    }
+  };
+  
+
   return (
     <div className="flex h-screen">
       {/* Menú lateral */}
@@ -73,7 +93,7 @@ function App() {
           </li>
           <li
             className={`p-2 cursor-pointer ${selectedOption === "pedidos" ? "bg-gray-700" : ""}`}
-            onClick={() => setSelectedOption("pedidos")}
+            onClick={() => setSelectedOption("pedidos-pendientes")}
           >
             Pedidos pendientes
           </li>
@@ -97,13 +117,16 @@ function App() {
                       <th className="border p-2">Stock</th>
                       <th className="border p-2">Código de Pedido</th>
                       <th className="border p-2">Cantidad</th>
-                      <th className="border p-2">Acción</th>
+                      <th className="border p-2">Acciones</th>
                     </>
                   ) : (
                     <>
-                      <th className="border p-2">Pedido #</th>
                       <th className="border p-2">Producto ID</th>
+                      <th className="border p-2">Nombre</th>
+                      <th className="border p-2">Orden #</th>                    
                       <th className="border p-2">Cantidad</th>
+                      <th className="border p-2">Fecha</th>
+                      <th className="border p-2">Acciones</th>
                     </>
                   )}
                 </tr>
@@ -114,7 +137,8 @@ function App() {
                     {selectedOption === "productos" ? (
                       <>
                         <td className="border p-2">{item.product_id}</td>
-                        <td className="border p-2">{item.variation_name}</td> 
+                        <td className="border p-2">{item.post_title}</td> 
+                        <td className="border p-2">{item.stock}</td> 
                         <td className="border p-2">
                           <input
                             type="text"
@@ -142,9 +166,19 @@ function App() {
                       </>
                     ) : (
                       <>
-                        <td className="border p-2">{item.order_number}</td>
                         <td className="border p-2">{item.product_id}</td>
+                        <td className="border p-2">{item.post_title}</td> 
+                        <td className="border p-2">{item.order_number}</td>
                         <td className="border p-2">{item.quantity}</td>
+                        <td className="border p-2">{item.order_date}</td>
+                        <td className="border p-2">
+                          <button
+                            className="bg-blue-500 text-white px-3 py-1 rounded"
+                            onClick={() => handleDelete(item, index)}
+                          >
+                            Eliminar
+                          </button>
+                        </td>
                       </>
                     )}
                   </tr>

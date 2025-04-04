@@ -56,7 +56,27 @@ app.post("/guardarPedido", async (req, res) => {
     }
   });
 
+  app.get("/pedidos-pendientes", async (req, res) => {
+    try {
+      const [rows] = await pool.query("CALL ObtenerPedidosPendientes()");
+      res.json({ success: true, result: rows[0] }); // El resultado está en rows[0] por ser un SP
+    } catch (error) {
+      console.error("Error al obtener pedidos pendientes:", error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
 
+  app.delete("/eliminar-pedido/:id", async (req, res) => {
+    const pedidoId = req.params.id;
+    try {
+      const [result] = await pool.query("CALL EliminarPedidoPendiente(?)", [pedidoId]);
+      res.json({ success: true, message: "Pedido eliminado correctamente." });
+    } catch (error) {
+      console.error("Error al eliminar pedido:", error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+  
 // Ruta principal
 app.get("/", (req, res) => {
     res.send("¡API funcionando!");
