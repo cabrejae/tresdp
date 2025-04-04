@@ -27,11 +27,8 @@ app.get("/test", async (req, res) => {
 });
 
 app.get("/productos", async (req, res) => {
-    console.log("✅ Express recibió la solicitud en /productos");
     try {
-        console.log("Recibí una solicitud en /productos");
         const [rows] = await pool.query("CALL ObtenerProductosBajoStock()");
-        console.log("RESULTADO DEL SP:", JSON.stringify(rows[0], null, 2));
         res.json({ success: true, result: rows[0] }); // Devuelve todas las filas
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -55,7 +52,6 @@ app.post("/guardarPedido", async (req, res) => {
   
       res.json({ success: true, message: "Pedido guardado correctamente.", result });
     } catch (error) {
-      console.error("Error al guardar el pedido:", error);
       res.status(500).json({ error: "Error interno del servidor." });
     }
   });
