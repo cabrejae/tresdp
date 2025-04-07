@@ -10,8 +10,44 @@ function App() {
 
   useEffect(() => {
     fetchData(selectedOption);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedOption]);
 
+
+  useEffect(() => {
+    const product_id = inputs["new-product_id"];
+    const variation_id = inputs["new-variation_id"];
+  
+    if (product_id) {
+      const fetchNombre = async () => {
+        try {
+          const res = await axios.get("http://localhost:5000/nombre-producto", {
+            params: {
+              product_id,
+              variation_id: variation_id || "",
+            },
+          });
+          if (res.data.success) {
+            setInputs((prev) => ({
+              ...prev,
+              "new-nombre_producto": res.data.nombre,
+            }));
+          }
+        } catch (err) {
+          console.error("Error al obtener nombre:", err);
+        }
+      };
+  
+      fetchNombre();
+    } else {
+      setInputs((prev) => ({
+        ...prev,
+        "new-nombre_producto": "",
+      }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputs["new-product_id"], inputs["new-variation_id"]]);
+  
   const fetchData = async (option = selectedOption) => {
     try {
       const response = await axios.get(`http://localhost:5000/${option}`);
@@ -239,12 +275,13 @@ function App() {
                       />
                     </td>
                     <td className="border p-2">
-                      <input
-                        type="text"
-                        placeholder="Nombre (opcional)"
-                        disabled
-                        className="w-full p-1 border bg-gray-100"
-                      />
+                    <input
+                      type="text"
+                      placeholder="Nombre"
+                      disabled
+                      value={inputs["new-nombre_producto"] || ""}
+                      className="w-full p-1 border bg-gray-100"
+                    />
                     </td>
                     <td className="border p-2">
                       <input

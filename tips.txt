@@ -29,7 +29,7 @@ git checkout main
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 para levanar Backend(en la carpeta del BackEnd)
-npm start
+
 
 para levantar FrontEnd(en la carpeta del FrontEnd)
 npm run dev

@@ -26,6 +26,44 @@ app.get("/test", async (req, res) => {
     }
 });
 
+app.get("/nombre-producto", async (req, res) => {
+  const { product_id, variation_id } = req.query;
+
+  try {
+    let nombre = "";
+
+    if (variation_id) {
+      // Buscar el nombre de la variación
+      const [rows] = await pool.query(
+        `SELECT p.post_title AS parent_title, v.post_title AS variation_title
+         FROM wpot_posts v
+         JOIN wpot_posts p ON v.post_parent = p.ID
+         WHERE v.ID = ?`,
+        [variation_id]
+      );
+
+      if (rows.length > 0) {
+        nombre = `${rows[0].parent_title} - ${rows[0].variation_title}`;
+      }
+    } else {
+      // Buscar solo por product_id
+      const [rows] = await pool.query(
+        `SELECT post_title FROM wpot_posts WHERE ID = ?`,
+        [product_id]
+      );
+
+      if (rows.length > 0) {
+        nombre = rows[0].post_title;
+      }
+    }
+
+    res.json({ success: true, nombre });
+  } catch (error) {
+    console.error("Error al obtener nombre del producto:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.get("/productos", async (req, res) => {
     try {
         const [rows] = await pool.query("CALL SP_ObtenerProductosBajoStock()");
