@@ -5,15 +5,18 @@ import "./App.css";
 function App() {
   const [selectedOption, setSelectedOption] = useState("productos");
   const [data, setData] = useState([]);
-  const [inputs, setInputs] = useState({}); // Estado para los inputs
+  const [inputs, setInputs] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+
 
   useEffect(() => {
     fetchData(selectedOption);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedOption]);
 
-  const fetchData = async (option) => {
+  const fetchData = async (option = selectedOption) => {
     try {
-      const response = await axios.get(`http://localhost:5000/${option}`);     
+      const response = await axios.get(`http://localhost:5000/${option}`);
       setData(response.data.result);
     } catch (error) {
       console.error("Error al obtener datos:", error);
@@ -21,7 +24,6 @@ function App() {
     }
   };
 
-  // Manejar cambios en los inputs por fila
   const handleInputChange = (index, field, value) => {
     setInputs((prev) => ({
       ...prev,
@@ -29,7 +31,57 @@ function App() {
     }));
   };
 
-  // Función para guardar los datos en el SP
+  const handleSaveAll = async () => {
+    const registrosAGuardar = data
+      .map((item, index) => {
+        const codigoPedido = inputs[`${index}-codigoPedido`];
+        const cantidad = inputs[`${index}-cantidad`];
+
+        if (codigoPedido && cantidad) {
+          return {
+            product_id: item.product_id,
+            variation_id: item.variation_id,
+            order_number: codigoPedido,
+            quantity: cantidad,
+            index,
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+
+    if (registrosAGuardar.length === 0) {
+      alert("No hay registros con datos para guardar.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      for (const pedido of registrosAGuardar) {
+        await axios.post("http://localhost:5000/guardarPedido", {
+          product_id: pedido.product_id,
+          variation_id: pedido.variation_id,
+          order_number: pedido.order_number,
+          quantity: pedido.quantity,
+        });
+
+        setInputs((prev) => ({
+          ...prev,
+          [`${pedido.index}-codigoPedido`]: "",
+          [`${pedido.index}-cantidad`]: "",
+        }));
+      }
+
+      alert("Pedidos guardados correctamente.");
+      await fetchData(); // Refrescar la grilla
+    } catch (error) {
+      console.error("Error al guardar pedidos:", error);
+      alert("Ocurrió un error al guardar los pedidos.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleSave = async (item, index) => {
     const codigoPedido = inputs[`${index}-codigoPedido`] || "";
     const cantidad = inputs[`${index}-cantidad`] || "";
@@ -42,9 +94,9 @@ function App() {
     try {
       await axios.post("http://localhost:5000/guardarPedido", {
         product_id: item.product_id,
-        variation_id: item.variation_id, // Si no tiene variación, enviará null
+        variation_id: item.variation_id,
         order_number: codigoPedido,
-        quantity : cantidad,
+        quantity: cantidad,
       });
 
       alert("Pedido guardado con éxito.");
@@ -53,16 +105,17 @@ function App() {
         [`${index}-codigoPedido`]: "",
         [`${index}-cantidad`]: "",
       }));
+      await fetchData(); // Refrescar grilla después de guardar individualmente
     } catch (error) {
       console.error("Error al guardar el pedido:", error);
-      alert("Hubo un error al guardar." + error);
+      alert("Hubo un error al guardar.");
     }
   };
 
   const handleDelete = async (item) => {
     const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este pedido?");
     if (!confirmDelete) return;
-  
+
     try {
       await axios.delete("http://localhost:5000/eliminarPedido", {
         data: {
@@ -70,13 +123,12 @@ function App() {
         },
       });
       alert("Pedido eliminado con éxito.");
-      fetchData("pedidos-pendientes"); // refrescar la tabla
+      fetchData("pedidos-pendientes");
     } catch (error) {
       console.error("Error al eliminar el pedido:", error);
       alert("Hubo un error al eliminar.");
     }
   };
-  
 
   return (
     <div className="flex h-screen">
@@ -91,7 +143,7 @@ function App() {
             Productos con bajo stock
           </li>
           <li
-            className={`p-2 cursor-pointer ${selectedOption === "pedidos" ? "bg-gray-700" : ""}`}
+            className={`p-2 cursor-pointer ${selectedOption === "pedidos-pendientes" ? "bg-gray-700" : ""}`}
             onClick={() => setSelectedOption("pedidos-pendientes")}
           >
             Pedidos pendientes
@@ -99,11 +151,24 @@ function App() {
         </ul>
       </aside>
 
-      {/* Sección de contenido */}
+      {/* Contenido principal */}
       <main className="flex-grow p-6">
         <h2 className="text-xl font-bold mb-4">
           {selectedOption === "productos" ? "Productos con bajo stock" : "Pedidos pendientes"}
         </h2>
+
+        {selectedOption === "productos" && (
+          <div className="mb-4">
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+              onClick={handleSaveAll}
+              disabled={isSaving}
+            >
+              {isSaving ? "Guardando..." : "Guardar todos los pedidos cargados"}
+            </button>
+          </div>
+        )}
+
         <div className="bg-white text-black shadow-md p-4 rounded">
           {data.length > 0 ? (
             <table className="w-full border-collapse border border-gray-300">
@@ -122,7 +187,7 @@ function App() {
                     <>
                       <th className="border p-2">Producto ID</th>
                       <th className="border p-2">Nombre</th>
-                      <th className="border p-2">Orden #</th>                    
+                      <th className="border p-2">Orden #</th>
                       <th className="border p-2">Cantidad</th>
                       <th className="border p-2">Fecha</th>
                       <th className="border p-2">Acciones</th>
@@ -136,8 +201,8 @@ function App() {
                     {selectedOption === "productos" ? (
                       <>
                         <td className="border p-2">{item.product_id}</td>
-                        <td className="border p-2">{item.post_title}</td> 
-                        <td className="border p-2">{item.stock}</td> 
+                        <td className="border p-2">{item.post_title}</td>
+                        <td className="border p-2">{item.stock}</td>
                         <td className="border p-2">
                           <input
                             type="text"
@@ -166,14 +231,14 @@ function App() {
                     ) : (
                       <>
                         <td className="border p-2">{item.product_id}</td>
-                        <td className="border p-2">{item.post_title}</td> 
+                        <td className="border p-2">{item.post_title}</td>
                         <td className="border p-2">{item.order_number}</td>
                         <td className="border p-2">{item.quantity}</td>
                         <td className="border p-2">{item.order_date}</td>
                         <td className="border p-2">
                           <button
                             className="bg-blue-500 text-white px-3 py-1 rounded"
-                            onClick={() => handleDelete(item, index)}
+                            onClick={() => handleDelete(item)}
                           >
                             Eliminar
                           </button>
