@@ -28,7 +28,7 @@ app.get("/test", async (req, res) => {
 
 app.get("/productos", async (req, res) => {
     try {
-        const [rows] = await pool.query("CALL ObtenerProductosBajoStock()");
+        const [rows] = await pool.query("CALL SP_ObtenerProductosBajoStock()");
         res.json({ success: true, result: rows[0] }); // Devuelve todas las filas
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -58,7 +58,7 @@ app.post("/guardarPedido", async (req, res) => {
 
   app.get("/pedidos-pendientes", async (req, res) => {
     try {
-      const [rows] = await pool.query("CALL ObtenerPedidosPendientes()");
+      const [rows] = await pool.query("CALL SP_ObtenerPedidosPendientes()");
       res.json({ success: true, result: rows[0] }); // El resultado está en rows[0] por ser un SP
     } catch (error) {
       console.error("Error al obtener pedidos pendientes:", error);
@@ -66,14 +66,16 @@ app.post("/guardarPedido", async (req, res) => {
     }
   });
 
-  app.delete("/eliminar-pedido/:id", async (req, res) => {
-    const pedidoId = req.params.id;
+  app.delete('/eliminarPedido', async (req, res) => {
+    const { order_number } = req.body;
     try {
-      const [result] = await pool.query("CALL EliminarPedidoPendiente(?)", [pedidoId]);
-      res.json({ success: true, message: "Pedido eliminado correctamente." });
-    } catch (error) {
-      console.error("Error al eliminar pedido:", error);
-      res.status(500).json({ success: false, error: error.message });
+      const conn = await pool.getConnection();
+      const result = await conn.query("CALL SP_EliminarPedido(?)", [order_number]);
+      conn.release();
+      res.json({ success: true, result });
+    } catch (err) {
+      console.error('Error eliminando pedido:', err);
+      res.status(500).json({ success: false, error: err.message });
     }
   });
   

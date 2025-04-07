@@ -66,7 +66,6 @@ function App() {
     try {
       await axios.delete("http://localhost:5000/eliminarPedido", {
         data: {
-          product_id: item.product_id,
           order_number: item.order_number,
         },
       });
