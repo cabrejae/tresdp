@@ -79,7 +79,9 @@ app.post("/guardarPedido", async (req, res) => {
     }
   });
   
-// Ruta principal
+
+
+  // Ruta principal
 app.get("/", (req, res) => {
     res.send("¡API funcionando!");
 });
