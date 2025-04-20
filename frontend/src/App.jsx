@@ -1,3 +1,4 @@
+// 🔄 MISMA CABECERA
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
@@ -10,14 +11,12 @@ function App() {
 
   useEffect(() => {
     fetchData(selectedOption);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedOption]);
-
+  });
 
   useEffect(() => {
     const product_id = inputs["new-product_id"];
     const variation_id = inputs["new-variation_id"];
-  
+
     if (product_id) {
       const fetchNombre = async () => {
         try {
@@ -37,7 +36,7 @@ function App() {
           console.error("Error al obtener nombre:", err);
         }
       };
-  
+
       fetchNombre();
     } else {
       setInputs((prev) => ({
@@ -45,9 +44,8 @@ function App() {
         "new-nombre_producto": "",
       }));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputs["new-product_id"], inputs["new-variation_id"]]);
-  
+  }, [inputs]);
+
   const fetchData = async (option = selectedOption) => {
     try {
       const response = await axios.get(`http://localhost:5000/${option}`);
@@ -137,7 +135,7 @@ function App() {
       setInputs((prev) => ({
         ...prev,
         [`${index}-codigoPedido`]: "",
-        [`${index}-cantidad`] : "",
+        [`${index}-cantidad`]: "",
       }));
       await fetchData();
     } catch (error) {
@@ -164,44 +162,107 @@ function App() {
     }
   };
 
-  const handleSaveManual = async () => {
-    const product_id = inputs["new-product_id"];
-    const variation_id = inputs["new-variation_id"] || null;
-    const order_number = inputs["new-order_number"];
-    const quantity = inputs["new-quantity"];
 
-    if (!product_id || !order_number || !quantity) {
-      alert("Complete al menos ID de producto, número de pedido y cantidad.");
-      return;
+  const renderTable = () => {
+    if (selectedOption === "productos" || selectedOption === "todos-los-productos") {
+      return (
+        <>
+          <div className="mb-4">
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+              onClick={handleSaveAll}
+              disabled={isSaving}
+            >
+              {isSaving ? "Guardando..." : "Guardar todos los pedidos cargados"}
+            </button>
+          </div>
+          <table className="w-full border-collapse border border-gray-300 text-sm">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border p-2 w-8">ID</th>
+                <th className="border p-2" style={{ width: '30rem' }}>Nombre</th>
+                {selectedOption === "productos" && <th className="border p-2 w-8">Stock</th>}
+                <th className="border p-2 w-28">Código de Pedido</th>
+                <th className="border p-2 w-10">Cantidad</th>
+                <th className="border p-2 w-14">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, index) => (
+                <tr key={index} className="border h-12">
+                  <td className="border px-2 py-1">{item.product_id}</td>
+                  <td className="border px-2 py-1 truncate">{item.post_title}</td>
+                  {selectedOption === "productos" && <td className="border px-2 py-1">{item.stock}</td>}
+                  <td className="border px-2 py-1">
+                    <input
+                      type="text"
+                      className="border p-1 h-8 w-full bg-white text-black focus:outline-none"
+                      value={inputs[`${index}-codigoPedido`] || ""}
+                      onChange={(e) => handleInputChange(index, "codigoPedido", e.target.value)}
+                    />
+                  </td>
+                  <td className="border px-2 py-1">
+                    <input
+                      type="text"
+                      className="border p-1 h-8 w-full bg-white text-black focus:outline-none"
+                      value={inputs[`${index}-cantidad`] || ""}
+                      onChange={(e) => handleInputChange(index, "cantidad", e.target.value)}
+                    />
+                  </td>
+                  <td className="border px-2 py-1">
+                    <button
+                      className="bg-blue-500 text-white px-3 py-1 rounded h-8"
+                      onClick={() => handleSave(item, index)}
+                    >
+                      Guardar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      );
     }
 
-    try {
-      await axios.post("http://localhost:5000/guardarPedido", {
-        product_id,
-        variation_id: variation_id === "" ? null : variation_id,
-        order_number,
-        quantity,
-      });
-
-      alert("Pedido ingresado correctamente.");
-      setInputs((prev) => ({
-        ...prev,
-        "new-product_id": "",
-        "new-variation_id": "",
-        "new-order_number": "",
-        "new-quantity": "",
-      }));
-
-      await fetchData("pedidos-pendientes");
-    } catch (error) {
-      console.error("Error al guardar pedido manual:", error);
-      alert("Error al ingresar el pedido.");
-    }
+    // PEDIDOS PENDIENTES
+    return (
+      <table className="w-full border-collapse border border-gray-300 text-sm">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="border p-2 w-10">ID</th>
+            <th className="border p-2" style={{ width: '30rem' }}>Nombre</th>
+            <th className="border p-2 w-20">Orden #</th>
+            <th className="border p-2 w-10">Cantidad</th>
+            <th className="border p-2 w-14">Fecha</th>
+            <th className="border p-2 w-10">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index} className="border">
+              <td className="border p-2">{item.product_id}</td>
+              <td className="border p-2">{item.post_title}</td>
+              <td className="border p-2">{item.order_number}</td>
+              <td className="border p-2">{item.quantity}</td>
+              <td className="border p-2">{item.order_date}</td>
+              <td className="border p-2">
+                <button
+                  className="bg-blue-500 text-white px-3 py-1 rounded"
+                  onClick={() => handleDelete(item)}
+                >
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
   };
 
   return (
     <div className="flex h-screen">
-      {/* Menú lateral */}
       <aside className="w-[250px] min-w-[250px] bg-gray-800 text-white p-4 flex flex-col">
         <h1 className="text-lg font-bold mb-4">Menú</h1>
         <ul className="space-y-2">
@@ -217,173 +278,26 @@ function App() {
           >
             Pedidos pendientes
           </li>
+          <li
+            className={`p-2 cursor-pointer ${selectedOption === "todos-los-productos" ? "bg-gray-700" : ""}`}
+            onClick={() => setSelectedOption("todos-los-productos")}
+          >
+            Todos los productos
+          </li>
         </ul>
       </aside>
 
-      {/* Contenido principal */}
       <main className="flex-grow p-6">
         <h2 className="text-xl font-bold mb-4">
-          {selectedOption === "productos" ? "Productos con bajo stock" : "Pedidos pendientes"}
+          {{
+            productos: "Productos con bajo stock",
+            "pedidos-pendientes": "Pedidos pendientes",
+            "todos-los-productos": "Todos los productos",
+          }[selectedOption]}
         </h2>
 
-        {selectedOption === "productos" && (
-          <div className="mb-4">
-            <button
-              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
-              onClick={handleSaveAll}
-              disabled={isSaving}
-            >
-              {isSaving ? "Guardando..." : "Guardar todos los pedidos cargados"}
-            </button>
-          </div>
-        )}
-
         <div className="bg-white text-black shadow-md p-4 rounded overflow-auto max-h-[80vh]">
-          {data.length > 0 || selectedOption === "pedidos-pendientes" ? (
-            <table className="w-full border-collapse border border-gray-300 text-sm">
-              <thead>
-                <tr className="bg-gray-200">
-                  {selectedOption === "productos" ? (
-                    <>
-                      <th className="border p-2">ID</th>
-                      <th className="border p-2">Nombre</th>
-                      <th className="border p-2">Stock</th>
-                      <th className="border p-2">Código de Pedido</th>
-                      <th className="border p-2">Cantidad</th>
-                      <th className="border p-2">Acciones</th>
-                    </>
-                  ) : (
-                    <>
-                      <th className="border p-2">Producto ID</th>
-                      <th className="border p-2">Nombre</th>
-                      <th className="border p-2">Orden #</th>
-                      <th className="border p-2">Cantidad</th>
-                      <th className="border p-2">Fecha</th>
-                      <th className="border p-2">Acciones</th>
-                    </>
-                  )}
-                </tr>
-                {selectedOption === "pedidos-pendientes" && (
-                  <tr className="bg-yellow-50">
-                    <td className="border p-2">
-                      <input
-                        type="text"
-                        placeholder="Product ID"
-                        value={inputs["new-product_id"] || ""}
-                        onChange={(e) => handleInputChange("new", "product_id", e.target.value)}
-                        className="border p-1 w-full bg-white text-black"
-                      />
-                    </td>
-                    <td className="border p-2">
-                    <input
-                      type="text"
-                      placeholder="Nombre"
-                      disabled
-                      value={inputs["new-nombre_producto"] || ""}
-                      className="w-full p-1 border bg-gray-100"
-                    />
-                    </td>
-                    <td className="border p-2">
-                      <input
-                        type="text"
-                        placeholder="Orden #"
-                        value={inputs["new-order_number"] || ""}
-                        onChange={(e) => handleInputChange("new", "order_number", e.target.value)}
-                        className="border p-1 w-full bg-white text-black"
-                      />
-                    </td>
-                    <td className="border p-2">
-                      <input
-                        type="text"
-                        placeholder="Cantidad"
-                        value={inputs["new-quantity"] || ""}
-                        onChange={(e) => handleInputChange("new", "quantity", e.target.value)}
-                        className="border p-1 w-full bg-white text-black"
-                      />
-                    </td>
-                    <td className="border p-2">
-                      <input
-                        type="text"
-                        placeholder="Fecha (auto)"
-                        disabled
-                        className="w-full p-1 border bg-gray-100"
-                      />
-                    </td>
-                    <td className="border p-2">
-                      <input
-                        type="text"
-                        placeholder="Variation ID"
-                        value={inputs["new-variation_id"] || ""}
-                        onChange={(e) => handleInputChange("new", "variation_id", e.target.value)}
-                        className="border p-1 w-full bg-white text-black"
-                      />
-                      <button
-                        className="bg-green-600 text-white px-3 py-1 rounded w-full"
-                        onClick={handleSaveManual}
-                      >
-                        Guardar
-                      </button>
-                    </td>
-                  </tr>
-                )}
-              </thead>
-              <tbody>
-                {data.map((item, index) => (
-                  <tr key={index} className="border">
-                    {selectedOption === "productos" ? (
-                      <>
-                        <td className="border p-2">{item.product_id}</td>
-                        <td className="border p-2">{item.post_title}</td>
-                        <td className="border p-2">{item.stock}</td>
-                        <td className="border p-2">
-                          <input
-                            type="text"
-                            className="border p-1 w-full bg-white text-black"
-                            value={inputs[`${index}-codigoPedido`] || ""}
-                            onChange={(e) => handleInputChange(index, "codigoPedido", e.target.value)}
-                          />
-                        </td>
-                        <td className="border p-2">
-                          <input
-                            type="text"
-                            className="border p-1 w-full bg-white text-black"
-                            value={inputs[`${index}-cantidad`] || ""}
-                            onChange={(e) => handleInputChange(index, "cantidad", e.target.value)}
-                          />
-                        </td>
-                        <td className="border p-2">
-                          <button
-                            className="bg-blue-500 text-white px-3 py-1 rounded"
-                            onClick={() => handleSave(item, index)}
-                          >
-                            Guardar
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td className="border p-2">{item.product_id}</td>
-                        <td className="border p-2">{item.post_title}</td>
-                        <td className="border p-2">{item.order_number}</td>
-                        <td className="border p-2">{item.quantity}</td>
-                        <td className="border p-2">{item.order_date}</td>
-                        <td className="border p-2">
-                          <button
-                            className="bg-blue-500 text-white px-3 py-1 rounded"
-                            onClick={() => handleDelete(item)}
-                          >
-                            Eliminar
-                          </button>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No hay datos disponibles.</p>
-          )}
+          {data.length > 0 ? renderTable() : <p>No hay datos disponibles.</p>}
         </div>
       </main>
     </div>

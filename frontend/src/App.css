@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Asegurar que todo ocupe la altura completa */
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -10,6 +9,53 @@ html, body, #root {
 }
 
 .menu {
-  width: 250px; /* Ancho fijo del menú */
-  min-width: 250px; /* Evita que se reduzca */
+  width: 250px;
+  min-width: 250px;
+}
+
+
+/* Evita que la tabla salte al escribir */
+table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Estilo uniforme para las celdas */
+th, td {
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.5rem;
+  height: 48px; /* Altura fija para evitar saltos */
+  box-sizing: border-box;
+}
+
+/* Inputs uniformes */
+td input {
+  width: 100%;
+  padding: 4px 6px;
+  font-size: 14px;
+  line-height: 1.25rem;
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+  height: 36px; /* Alto fijo */
+  box-sizing: border-box;
+}
+
+/* Botones uniformes */
+button {
+  padding: 6px 12px;
+  font-size: 14px;
+  height: 36px; /* Alto fijo como el input */
+  line-height: 1rem;
+  box-sizing: border-box;
+}
+
+/* Evita cambios por enfoque */
+input:focus, button:focus {
+  outline: none;
+  box-shadow: none;
 }

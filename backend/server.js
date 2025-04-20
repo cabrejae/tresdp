@@ -116,6 +116,15 @@ app.post("/guardarPedido", async (req, res) => {
       res.status(500).json({ success: false, error: err.message });
     }
   });
+
+  app.get("/todos-los-productos", async (req, res) => {
+  try {
+    const [rows] = await pool.query("CALL SP_ObtenerTodosLosProductos()");
+    res.json({ success: true, result: rows[0] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
   
 
 
