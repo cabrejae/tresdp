@@ -133,5 +133,47 @@ app.get("/", (req, res) => {
     res.send("¡API funcionando!");
 });
 
+//  Costo de Productos
+app.get("/costos-productos", async (req, res) => {
+  try {
+    const [rows] = await pool.query("CALL SP_ObtenerCostosProductos()");
+    res.json({ success: true, result: rows[0] });
+  } catch (error) {
+    console.error("Error al obtener costos:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+//Guarda el costo del producto
+app.post("/guardarCostoProducto", async (req, res) => {
+  const { product_id, variation_id, cantidad, unidades, envio, npedido, costo_aduana, n_precio_producto } = req.body;
+
+  if (!product_id) {
+    return res.status(400).json({ success: false, message: "Falta el ID del producto" });
+  }
+
+  try {
+    await pool.query(`
+      INSERT INTO tresdp_precio_productos (product_id, variation_id, cantidad, unidades, envio, npedido, costo_aduana, n_precio_producto, fecha)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURDATE())
+      ON DUPLICATE KEY UPDATE
+        cantidad = VALUES(cantidad),
+        unidades = VALUES(unidades),
+        envio = VALUES(envio),
+        npedido = VALUES(npedido),
+        costo_aduana = VALUES(costo_aduana),
+        n_precio_producto = VALUES(n_precio_producto),
+        fecha = CURDATE()
+    `, [product_id, variation_id, cantidad, unidades, envio, npedido, costo_aduana, n_precio_producto]);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error al guardar costo producto:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
 // Iniciar servidor
 app.listen(PORT, () => console.log(`✅ Servidor corriendo en http://localhost:${PORT}`));
+

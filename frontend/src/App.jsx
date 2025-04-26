@@ -284,6 +284,12 @@ function App() {
           >
             Todos los productos
           </li>
+          <li
+            className={`p-2 cursor-pointer ${selectedOption === "costos-productos" ? "bg-gray-700" : ""}`}
+            onClick={() => setSelectedOption("costos-productos")}
+          >
+            Costos de productos
+          </li>
         </ul>
       </aside>
 
