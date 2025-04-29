@@ -146,25 +146,26 @@ app.get("/costos-productos", async (req, res) => {
 
 //Guarda el costo del producto
 app.post("/guardarCostoProducto", async (req, res) => {
-  const { product_id, variation_id, cantidad, unidades, envio, npedido, costo_aduana, n_precio_producto } = req.body;
+  const {
+    product_id, variation_id, cantidad, unidades,
+    costo_envio, costo_pedido, costo_aduana, n_precio_producto
+  } = req.body;
 
   if (!product_id) {
     return res.status(400).json({ success: false, message: "Falta el ID del producto" });
   }
 
   try {
-    await pool.query(`
-      INSERT INTO tresdp_precio_productos (product_id, variation_id, cantidad, unidades, envio, npedido, costo_aduana, n_precio_producto, fecha)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURDATE())
-      ON DUPLICATE KEY UPDATE
-        cantidad = VALUES(cantidad),
-        unidades = VALUES(unidades),
-        envio = VALUES(envio),
-        npedido = VALUES(npedido),
-        costo_aduana = VALUES(costo_aduana),
-        n_precio_producto = VALUES(n_precio_producto),
-        fecha = CURDATE()
-    `, [product_id, variation_id, cantidad, unidades, envio, npedido, costo_aduana, n_precio_producto]);
+    await pool.query("CALL SP_GuardarCostoProducto(?, ?, ?, ?, ?, ?, ?, ?)", [
+      product_id,
+      variation_id || null,
+      cantidad,
+      unidades,
+      costo_envio,
+      costo_pedido,
+      costo_aduana,
+      n_precio_producto
+    ]);
 
     res.json({ success: true });
   } catch (error) {

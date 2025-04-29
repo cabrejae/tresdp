@@ -144,6 +144,28 @@ function App() {
     }
   };
 
+  const handleSaveCostos = async (item, index) => {
+    try {
+      await axios.post("http://localhost:5000/guardarCostoProducto", {
+        product_id: item.product_id,
+        variation_id: item.variation_id,
+        cantidad: inputs[`${index}-cantidad`] ?? item.cantidad ?? 0,
+        unidades: inputs[`${index}-unidades`] ?? item.unidades ?? 0,
+        envio: inputs[`${index}-costo_envio`] ?? item.costo_envio ?? 0,
+        npedido: inputs[`${index}-costo_pedido`] ?? item.costo_pedido ?? 0,
+        costo_aduana: inputs[`${index}-costo_aduana`] ?? item.costo_aduana ?? 0,
+        n_precio_producto: inputs[`${index}-n_precio_producto`] ?? item.costo_producto ?? 0,
+      });
+  
+      alert("Costo guardado correctamente.");
+      await fetchData("costos-productos");
+    } catch (error) {
+      console.error("Error al guardar costo:", error);
+      alert("Error al guardar el costo del producto.");
+    }
+  };
+  
+
   const handleDelete = async (item) => {
     const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este pedido?");
     if (!confirmDelete) return;
@@ -226,39 +248,151 @@ function App() {
     }
 
     // PEDIDOS PENDIENTES
-    return (
-      <table className="w-full border-collapse border border-gray-300 text-sm">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border p-2 w-10">ID</th>
-            <th className="border p-2" style={{ width: '30rem' }}>Nombre</th>
-            <th className="border p-2 w-20">Orden #</th>
-            <th className="border p-2 w-10">Cantidad</th>
-            <th className="border p-2 w-14">Fecha</th>
-            <th className="border p-2 w-10">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, index) => (
-            <tr key={index} className="border">
-              <td className="border p-2">{item.product_id}</td>
-              <td className="border p-2">{item.post_title}</td>
-              <td className="border p-2">{item.order_number}</td>
-              <td className="border p-2">{item.quantity}</td>
-              <td className="border p-2">{item.order_date}</td>
-              <td className="border p-2">
-                <button
-                  className="bg-blue-500 text-white px-3 py-1 rounded"
-                  onClick={() => handleDelete(item)}
-                >
-                  Eliminar
-                </button>
-              </td>
+    if (selectedOption === "pedidos-pendientes") {
+      return (
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border p-2 w-10">ID</th>
+              <th className="border p-2" style={{ width: '30rem' }}>Nombre</th>
+              <th className="border p-2 w-20">Orden #</th>
+              <th className="border p-2 w-10">Cantidad</th>
+              <th className="border p-2 w-14">Fecha</th>
+              <th className="border p-2 w-10">Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    );
+          </thead>
+          <tbody>
+            {data.map((item, index) => (
+              <tr key={index} className="border">
+                <td className="border p-2">{item.product_id}</td>
+                <td className="border p-2">{item.post_title}</td>
+                <td className="border p-2">{item.order_number}</td>
+                <td className="border p-2">{item.quantity}</td>
+                <td className="border p-2">{item.order_date}</td>
+                <td className="border p-2">
+                  <button
+                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                    onClick={() => handleDelete(item)}
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+     );
+    }
+
+    if (selectedOption === "costos-productos") {
+      return (
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border p-2 w-12">ID</th>
+              <th className="border p-2">Nombre</th>
+              <th className="border p-2 w-14">Cantidad</th>
+              <th className="border p-2 w-14">Unidades</th>
+              <th className="border p-2 w-14">Precio</th>
+              <th className="border p-2 w-14">Envío</th>
+              <th className="border p-2 w-14">Pedido</th>
+              <th className="border p-2 w-14">Aduana</th>
+              <th className="border p-2 w-16">Costo unidad</th>
+              <th className="border p-2 w-16">Costo ML</th>
+              <th className="border p-2 w-16">Costo ML 2</th>
+              <th className="border p-2 w-20">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item, index) => (
+              <tr key={index} className="border">
+                <td className="border p-2">{item.product_id}</td>
+                <td className="border p-2">{item.post_title}</td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    className="w-full border p-1 text-black"
+                    value={inputs[`${index}-cantidad`] ?? item.cantidad ?? ""}
+                    onChange={(e) => handleInputChange(index, "cantidad", e.target.value)}
+                  />
+                </td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    className="w-full border p-1 text-black"
+                    value={inputs[`${index}-unidades`] ?? item.unidades ?? ""}
+                    onChange={(e) => handleInputChange(index, "unidades", e.target.value)}
+                  />
+                </td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    className="w-full border p-1 text-black"
+                    value={inputs[`${index}-n_precio_producto`] ?? item.costo_producto ?? ""}
+                    onChange={(e) => handleInputChange(index, "n_precio_producto", e.target.value)}
+                  />
+                </td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    className="w-full border p-1 text-black"
+                    value={inputs[`${index}-envio`] ?? item.costo_envio ?? ""}
+                    onChange={(e) => handleInputChange(index, "costo_envio", e.target.value)}
+                  />
+                </td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    className="w-full border p-1 text-black"
+                    value={inputs[`${index}-npedido`] ?? item.costo_pedido ?? ""}
+                    onChange={(e) => handleInputChange(index, "costo_pedido", e.target.value)}
+                  />
+                </td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    className="w-full border p-1 text-black"
+                    value={inputs[`${index}-costo_aduana`] ?? item.costo_aduana ?? ""}
+                    onChange={(e) => handleInputChange(index, "costo_aduana", e.target.value)}
+                  />
+                </td>
+                <td className="border p-2 text-right">{item.costo_unidad ?? "-"}</td>
+                <td className="border p-2 text-right">{item.costo_ml ?? "-"}</td>
+                <td className="border p-2 text-right">{item.costo_ml2 ?? "-"}</td>
+                <td className="border p-2">
+                  <button
+                    className="bg-green-600 text-white px-2 py-1 rounded"
+                    onClick={() => const handleSaveCostos = async (item, index) => {
+                      try {
+                        await axios.post("http://localhost:5000/guardarCostoProducto", {
+                          product_id: item.product_id,
+                          variation_id: item.variation_id,
+                          cantidad: inputs[`${index}-cantidad`] ?? item.cantidad ?? 0,
+                          unidades: inputs[`${index}-unidades`] ?? item.unidades ?? 0,
+                          envio: inputs[`${index}-envio`] ?? item.costo_envio ?? 0,
+                          npedido: inputs[`${index}-npedido`] ?? item.costo_pedido ?? 0,
+                          costo_aduana: inputs[`${index}-costo_aduana`] ?? item.costo_aduana ?? 0,
+                          n_precio_producto: inputs[`${index}-n_precio_producto`] ?? item.costo_producto ?? 0,
+                        });
+                    
+                        alert("Costo guardado correctamente.");
+                        await fetchData("costos-productos");
+                      } catch (error) {
+                        console.error("Error al guardar costo:", error);
+                        alert("Error al guardar el costo del producto.");
+                      }
+                    };(item, index)}
+                  >
+                    Guardar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+    
   };
 
   return (
@@ -299,6 +433,7 @@ function App() {
             productos: "Productos con bajo stock",
             "pedidos-pendientes": "Pedidos pendientes",
             "todos-los-productos": "Todos los productos",
+            "costos-productos": "Costo de Productos",
           }[selectedOption]}
         </h2>
 
