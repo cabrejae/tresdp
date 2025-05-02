@@ -290,7 +290,7 @@ function App() {
           <thead>
             <tr className="bg-gray-200">
               <th className="border p-2 w-12">ID</th>
-              <th className="border p-2">Nombre</th>
+              <th className="border p-2 w-64">Nombre</th>
               <th className="border p-2 w-14">Cantidad</th>
               <th className="border p-2 w-14">Unidades</th>
               <th className="border p-2 w-14">Precio</th>
@@ -310,7 +310,7 @@ function App() {
                 <td className="border p-2">{item.post_title}</td>
                 <td className="border p-2">
                   <input
-                    type="number"
+                    type="text"
                     className="w-full border p-1 text-black"
                     value={inputs[`${index}-cantidad`] ?? item.cantidad ?? ""}
                     onChange={(e) => handleInputChange(index, "cantidad", e.target.value)}
@@ -318,7 +318,7 @@ function App() {
                 </td>
                 <td className="border p-2">
                   <input
-                    type="number"
+                    type="text"
                     className="w-full border p-1 text-black"
                     value={inputs[`${index}-unidades`] ?? item.unidades ?? ""}
                     onChange={(e) => handleInputChange(index, "unidades", e.target.value)}
@@ -326,7 +326,7 @@ function App() {
                 </td>
                 <td className="border p-2">
                   <input
-                    type="number"
+                    type="text"
                     className="w-full border p-1 text-black"
                     value={inputs[`${index}-n_precio_producto`] ?? item.costo_producto ?? ""}
                     onChange={(e) => handleInputChange(index, "n_precio_producto", e.target.value)}
@@ -334,7 +334,7 @@ function App() {
                 </td>
                 <td className="border p-2">
                   <input
-                    type="number"
+                    type="text"
                     className="w-full border p-1 text-black"
                     value={inputs[`${index}-envio`] ?? item.costo_envio ?? ""}
                     onChange={(e) => handleInputChange(index, "costo_envio", e.target.value)}
@@ -342,7 +342,7 @@ function App() {
                 </td>
                 <td className="border p-2">
                   <input
-                    type="number"
+                    type="text"
                     className="w-full border p-1 text-black"
                     value={inputs[`${index}-npedido`] ?? item.costo_pedido ?? ""}
                     onChange={(e) => handleInputChange(index, "costo_pedido", e.target.value)}
@@ -350,7 +350,7 @@ function App() {
                 </td>
                 <td className="border p-2">
                   <input
-                    type="number"
+                    type="text"
                     className="w-full border p-1 text-black"
                     value={inputs[`${index}-costo_aduana`] ?? item.costo_aduana ?? ""}
                     onChange={(e) => handleInputChange(index, "costo_aduana", e.target.value)}
