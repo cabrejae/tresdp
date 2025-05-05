@@ -19,9 +19,9 @@ function App() {
         if (res.data.success && Array.isArray(res.data.result)) {
           const p = {};
           res.data.result.forEach((row) => {
-            if (row.id === 1) p.multiplicador_general = parseFloat(row.nValor);
-            if (row.id === 2) p.ml = parseFloat(row.nValor);
-            if (row.id === 3) p.ml2 = parseFloat(row.nValor);
+            if (row.id === 1) p.multiplicador_general = parseFloat(row.nvalor);
+            if (row.id === 2) p.ml = parseFloat(row.nvalor);
+            if (row.id === 3) p.ml2 = parseFloat(row.nvalor);
           });
           setParametros(p);
           console.log("Parametros cargados:", p);
@@ -41,7 +41,7 @@ function App() {
 
   useEffect(() => {
     fetchData(selectedOption);
-  },[]);
+  });
 
 
   const fetchData = async (option = selectedOption) => {
