@@ -26,6 +26,8 @@ app.get("/test", async (req, res) => {
     }
 });
 
+
+//********************************************no de para que se usa */
 app.get("/nombre-producto", async (req, res) => {
   const { product_id, variation_id } = req.query;
 
@@ -64,6 +66,8 @@ app.get("/nombre-producto", async (req, res) => {
   }
 });
 
+
+//Grilla Productos con Bajo stock
 app.get("/productos", async (req, res) => {
     try {
         const [rows] = await pool.query("CALL SP_ObtenerProductosBajoStock()");
@@ -94,6 +98,7 @@ app.post("/guardarPedido", async (req, res) => {
     }
   });
 
+  //Grilla Pedidos Pendientes
   app.get("/pedidos-pendientes", async (req, res) => {
     try {
       const [rows] = await pool.query("CALL SP_ObtenerPedidosPendientes()");
@@ -104,6 +109,7 @@ app.post("/guardarPedido", async (req, res) => {
     }
   });
 
+  //Borrar pedido desde boton Eliminar de  grilla pedidos pendientes
   app.delete('/eliminarPedido', async (req, res) => {
     const { order_number } = req.body;
     try {
@@ -117,6 +123,7 @@ app.post("/guardarPedido", async (req, res) => {
     }
   });
 
+  // Grilla Todos loa productos
   app.get("/todos-los-productos", async (req, res) => {
   try {
     const [rows] = await pool.query("CALL SP_ObtenerTodosLosProductos()");
@@ -133,7 +140,7 @@ app.get("/", (req, res) => {
     res.send("¡API funcionando!");
 });
 
-//  Costo de Productos
+// Grilla Costo de Productos
 app.get("/costos-productos", async (req, res) => {
   try {
     const [rows] = await pool.query("CALL SP_ObtenerCostosProductos()");
@@ -144,7 +151,7 @@ app.get("/costos-productos", async (req, res) => {
   }
 });
 
-//Guarda el costo del producto
+//Boton Guardar de Grilla costo del producto
 app.post("/guardarCostoProducto", async (req, res) => {
   const {
     product_id, variation_id, cantidad, unidades,
@@ -170,6 +177,17 @@ app.post("/guardarCostoProducto", async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error("Error al guardar costo producto:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+//Levantar valores de tabla tresdp_parametros
+app.get("/parametros", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT id, nvalor FROM tresdp_parametros WHERE id IN (1,2,3)");
+    res.json({ success: true, result: rows });
+  } catch (error) {
+    console.error("Error al obtener costos:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
