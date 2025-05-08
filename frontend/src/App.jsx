@@ -149,8 +149,8 @@ function App() {
         variation_id: item.variation_id,
         cantidad: inputs[`${index}-cantidad`] ?? item.cantidad ?? 0,
         unidades: inputs[`${index}-unidades`] ?? item.unidades ?? 0,
-        envio: inputs[`${index}-costo_envio`] ?? item.costo_envio ?? 0,
-        npedido: inputs[`${index}-costo_pedido`] ?? item.costo_pedido ?? 0,
+        costo_envio: inputs[`${index}-costo_envio`] ?? item.costo_envio ?? 0,
+        costo_pedido: inputs[`${index}-costo_pedido`] ?? item.costo_pedido ?? 0,
         costo_aduana: inputs[`${index}-costo_aduana`] ?? item.costo_aduana ?? 0,
         n_precio_producto: inputs[`${index}-n_precio_producto`] ?? item.costo_producto ?? 0,
       });
@@ -328,8 +328,8 @@ function App() {
 
     let costo_unidad = 0;
     if (cantidad > 0 && unidades > 0 && parametros?.multiplicador_general) {
-      costo_unidad = ((total_producto + envio_ponderado) / cantidad / unidades) * parametros.multiplicador_general;
-    }
+      costo_unidad = ((total_producto + envio_ponderado) / (cantidad * unidades) * parametros.multiplicador_general);
+    }0;
 
     const costo_ml = costo_unidad * (parametros?.ml ?? 0);
     const costo_ml2 = costo_unidad * (parametros?.ml2 ?? 0);
