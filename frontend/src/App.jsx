@@ -61,6 +61,22 @@ function App() {
     }));
   };
 
+  const [comparacion, setComparacion] = useState({
+    cantidad: "",
+    unidades: "",
+    precio: "",
+    envio: "",
+    pedido: "",
+    aduana: "",
+  });
+  
+  const handleComparacion = (campo, valor) => {
+    setComparacion((prev) => ({
+      ...prev,
+      [campo]: valor || 0,
+    }));
+  };
+
   const handleSaveAll = async () => {
     const registrosAGuardar = data
       .map((item, index) => {
@@ -217,6 +233,7 @@ function App() {
                     <input
                       type="text"
                       className="border p-1 h-8 w-full bg-gray-400  text-black font-bold focus:outline-none"
+                      
                       value={inputs[`${index}-codigoPedido`] || ""}
                       onChange={(e) => handleInputChange(index, "codigoPedido", e.target.value)}
                     />
@@ -283,125 +300,179 @@ function App() {
     }
 
     if (selectedOption === "costos-productos") {
+
+      
+      // cálculo exactamente igual al resto de las filas
+      const cantidad = comparacion.cantidad;
+      const unidades = comparacion.unidades;
+      const costo_producto = comparacion.precio;
+      const costo_envio = comparacion.envio;
+      const costo_pedido = comparacion.pedido;
+      const costo_aduana = comparacion.aduana;
+      const total_producto = cantidad * costo_producto;
+      
+      let envio_ponderado = 0;
+      if (cantidad > 0 && costo_pedido > 0 && parametros?.multiplicador_general) {
+        envio_ponderado = parseFloat(((costo_envio + (costo_aduana / parametros.multiplicador_general)) / costo_pedido * total_producto).toFixed(2));
+        //envio_ponderado = parseFloat(((costo_envio + (costo_aduana / parametros.multiplicador_general)) / costo_pedido * total_producto).toFixed(2));
+      } 
+      
+      let costoUnidad = 0;
+      if (cantidad > 0 && unidades > 0 && parametros?.multiplicador_general) {
+        costoUnidad = ((total_producto + envio_ponderado) / (cantidad * unidades)) * parametros.multiplicador_general;
+      }
+      
+      const costoML = costoUnidad * (parametros?.ml ?? 0);
+      const costoML2 = costoUnidad * (parametros?.ml2 ?? 0);
+      
       return (
         <table className="w-full border-collapse border border-gray-500 text-sm">
           <thead>
             <tr className="bg-gray-500">
-              <th className="border p-2 w-12">ID</th>
-              <th className="border p-2 w-64">Nombre</th>
-              <th className="border p-2 w-14">Cantidad</th>
-              <th className="border p-2 w-14">Unidades</th>
-              <th className="border p-2 w-14">Precio</th>
-              <th className="border p-2 w-14">Envío</th>
-              <th className="border p-2 w-14">Pedido</th>
-              <th className="border p-2 w-14">Aduana</th>
-              <th className="border p-2 w-16">Costo unidad</th>
-              <th className="border p-2 w-16">Costo ML</th>
-              <th className="border p-2 w-16">Costo ML 2</th>
-              <th className="border p-2 w-20">Acción</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-12">ID</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-64">Nombre</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-14">Cantidad</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-14">Unidades</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-14">Precio</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-14">Envío</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-14">Pedido</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-14">Aduana</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-16">Costo unidad</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-16">Costo ML</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-16">Costo ML 2</th>
+              <th className="sticky top-[36px] z-10 bg-gray-800 border p-2 w-20">Acción</th>
             </tr>
           </thead>
-          <tbody>
-  {data.map((item, index) => {
-    const cantidad = parseFloat(inputs[`${index}-cantidad`] ?? item.cantidad ?? 0) || 0;
-    const unidades = parseFloat(inputs[`${index}-unidades`] ?? item.unidades ?? 0) || 0;
-    const costo_producto = parseFloat(inputs[`${index}-n_precio_producto`] ?? item.costo_producto ?? 0) || 0;
-    const costo_envio = parseFloat(inputs[`${index}-costo_envio`] ?? item.costo_envio ?? 0) || 0;
-    const costo_pedido = parseFloat(inputs[`${index}-costo_pedido`] ?? item.costo_pedido ?? 0) || 0;
-    const costo_aduana = parseFloat(inputs[`${index}-costo_aduana`] ?? item.costo_aduana ?? 0) || 0;
-    const total_producto = cantidad * costo_producto;
-    let envio_ponderado = 0;
-    if (cantidad > 0 && costo_pedido > 0 && parametros?.multiplicador_general) {
-      //envio_ponderado =()
-      //  ((cantidad * costo_producto * parametros.multiplicador_general) /
-      //    (costo_pedido * parametros.multiplicador_general)) *
-      //  ((costo_envio * parametros.multiplicador_general) + costo_aduana);
-      
-      envio_ponderado = parseFloat(((costo_envio+(costo_aduana/parametros.multiplicador_general))/costo_pedido* total_producto).toFixed(2));
-     
-      //console.log("costo_envio:" + costo_envio );
-      //console.log("costo_aduana:" + costo_aduana );
-      //console.log("costo_pedido:" + costo_pedido );
-      //console.log("costo_producto:" + total_producto );
-      //console.log("envio_ponderado:" + envio_ponderado );
-    }
+{/* Fila fija de comparación */}
+<tr className="sticky top-0 bg-gray-700 z-20 text-white text-sm">
+  <td className="border p-2"></td>
+  <td className="border p-2 font-bold">Comparar</td>
+  <td className="border p-2">
+    <input type="text" value={comparacion.cantidad} onChange={(e) => handleComparacion("cantidad", e.target.value)} className="w-full text-black px-1" />
+  </td>
+  <td className="border p-2">
+    <input type="text" value={comparacion.unidades} onChange={(e) => handleComparacion("unidades", e.target.value)} className="w-full text-black px-1" />
+  </td>
+  <td className="w-full border p-2">
+  <input type="text" value={comparacion.precio}onChange={(e) => handleComparacion("precio", e.target.value)} className="w-full text-black px-1"
+/>
+  </td>
+  <td className="border p-2">
+    <input type="text" value={comparacion.envio} onChange={(e) => handleComparacion("envio", e.target.value)} className="w-full text-black px-1" />
+  </td>
+  <td className="border p-2">
+    <input type="text" value={comparacion.pedido} onChange={(e) => handleComparacion("pedido", e.target.value)} className="w-full text-black px-1" />
+  </td>
+  <td className="border p-2">
+    <input type="text" value={comparacion.aduana} onChange={(e) => handleComparacion("aduana", e.target.value)} className="w-full text-black px-1" />
+  </td>
+  <td className="border p-2 text-right">{isNaN(costoUnidad) ? "-" : costoUnidad.toFixed(2)}</td>
+  <td className="border p-2 text-right">{isNaN(costoML) ? "-" : costoML.toFixed(2)}</td>
+  <td className="border p-2 text-right">{isNaN(costoML2) ? "-" : costoML2.toFixed(2)}</td>
+  <td className="border p-2"></td>
+</tr>
 
-    let costo_unidad = 0;
-    if (cantidad > 0 && unidades > 0 && parametros?.multiplicador_general) {
-      costo_unidad = ((total_producto + envio_ponderado) / (cantidad * unidades) * parametros.multiplicador_general);
-    }0;
+    <tbody>
+      {data.map((item, index) => {
+        const cantidad = parseFloat(inputs[`${index}-cantidad`] ?? item.cantidad ?? 0) || 0;
+        const unidades = parseFloat(inputs[`${index}-unidades`] ?? item.unidades ?? 0) || 0;
+        const costo_producto = parseFloat(inputs[`${index}-n_precio_producto`] ?? item.costo_producto ?? 0) || 0;
+        const costo_envio = parseFloat(inputs[`${index}-costo_envio`] ?? item.costo_envio ?? 0) || 0;
+        const costo_pedido = parseFloat(inputs[`${index}-costo_pedido`] ?? item.costo_pedido ?? 0) || 0;
+        const costo_aduana = parseFloat(inputs[`${index}-costo_aduana`] ?? item.costo_aduana ?? 0) || 0;
+        const total_producto = cantidad * costo_producto;
+        let envio_ponderado = 0;
+        if (cantidad > 0 && costo_pedido > 0 && parametros?.multiplicador_general) {
+          //envio_ponderado =()
+          //  ((cantidad * costo_producto * parametros.multiplicador_general) /
+          //    (costo_pedido * parametros.multiplicador_general)) *
+          //  ((costo_envio * parametros.multiplicador_general) + costo_aduana);
+          
+          envio_ponderado = parseFloat(((costo_envio+(costo_aduana/parametros.multiplicador_general))/costo_pedido* total_producto).toFixed(2));
+        
+          //console.log("costo_envio:" + costo_envio );
+          //console.log("costo_aduana:" + costo_aduana );
+          //console.log("costo_pedido:" + costo_pedido );
+          //console.log("costo_producto:" + total_producto );
+          //console.log("envio_ponderado:" + envio_ponderado );
+        }
 
-    const costo_ml = costo_unidad * (parametros?.ml ?? 0);
-    const costo_ml2 = costo_unidad * (parametros?.ml2 ?? 0);
+      let costo_unidad = 0;
+      if (cantidad > 0 && unidades > 0 && parametros?.multiplicador_general) {
+        costo_unidad = ((total_producto + envio_ponderado) / (cantidad * unidades) * parametros.multiplicador_general);
+      }0;
 
-    return (
-      <tr key={index} className="border">
-        <td className="border p-2">{item.product_id}/{item.variation_id}</td>
-        <td className="border p-2">{item.post_title}</td>
-        <td className="border p-2">
-          <input
-            type="text"
-            value={inputs[`${index}-cantidad`] ?? item.cantidad ?? ""}
-            onChange={(e) => handleInputChange(index, "cantidad", e.target.value)}
-            className="border w-full px-1 py-0.5  bg-gray-400 font-bold"
-          />
-        </td>
-        <td className="border p-2">
-          <input
-            type="text"
-            value={inputs[`${index}-unidades`] ?? item.unidades ?? ""}
-            onChange={(e) => handleInputChange(index, "unidades", e.target.value)}
-            className="border w-full px-1 py-0.5 bg-gray-400 font-bold"
-          />
-        </td>
-        <td className="border p-2">
-          <input
-            type="text"
-            value={inputs[`${index}-n_precio_producto`] ?? item.costo_producto ?? ""}
-            onChange={(e) => handleInputChange(index, "n_precio_producto", e.target.value)}
-            className="border w-full px-1 py-0.5  bg-gray-400 font-bold"
-          />
-        </td>
-        <td className="border p-2">
-          <input
-            type="text"
-            value={inputs[`${index}-costo_envio`] ?? item.costo_envio ?? ""}
-            onChange={(e) => handleInputChange(index, "costo_envio", e.target.value)}
-            className="border w-full px-1 py-0.5  bg-gray-400 font-bold"
-          />
-        </td>
-        <td className="border p-2">
-          <input
-            type="text"
-            value={inputs[`${index}-costo_pedido`] ?? item.costo_pedido ?? ""}
-            onChange={(e) => handleInputChange(index, "costo_pedido", e.target.value)}
-            className="border w-full px-1 py-0.5  bg-gray-400 font-bold"
-          />
-        </td>
-        <td className="border p-2">
-          <input
-            type="text"
-            value={inputs[`${index}-costo_aduana`] ?? item.costo_aduana ?? ""}
-            onChange={(e) => handleInputChange(index, "costo_aduana", e.target.value)}
-            className="border w-full px-1 py-0.5  bg-gray-400 font-bold"
-          />
-        </td>
-        <td className="border p-2 text-right">{isNaN(costo_unidad) ? "-" : costo_unidad.toFixed(2)}</td>
-        <td className="border p-2 text-right">{isNaN(costo_ml) ? "-" : costo_ml.toFixed(2)}</td>
-        <td className="border p-2 text-right">{isNaN(costo_ml2) ? "-" : costo_ml2.toFixed(2)}</td>
-        <td className="border p-2">
-          <button
-            className="bg-green-600 text-white  px-3 py-1 rounded"
-            onClick={() => handleSaveCostos(item, index)}
-          >
-            Guardar
-          </button>
-        </td>
-      </tr>
-    );
+      const costo_ml = costo_unidad * (parametros?.ml ?? 0);
+      const costo_ml2 = costo_unidad * (parametros?.ml2 ?? 0);
+
+      return (
+        <tr key={index} className="border">
+          <td className="border p-2">{item.product_id}/{item.variation_id}</td>
+          <td className="border p-2">{item.post_title}</td>
+          <td className="border p-2">
+            <input
+              type="text"
+              value={inputs[`${index}-cantidad`] ?? item.cantidad ?? ""}
+              onChange={(e) => handleInputChange(index, "cantidad", e.target.value)}
+              className="border w-full px-1 py-0.5  bg-gray-400 font-bold"
+            />
+          </td>
+          <td className="border p-2">
+            <input
+              type="text"
+              value={inputs[`${index}-unidades`] ?? item.unidades ?? ""}
+              onChange={(e) => handleInputChange(index, "unidades", e.target.value)}
+              className="border w-full px-1 py-0.5 bg-gray-400 font-bold"
+            />
+          </td>
+          <td className="border p-2">
+            <input
+              type="text"
+              value={inputs[`${index}-n_precio_producto`] ?? item.costo_producto ?? ""}
+              onChange={(e) => handleInputChange(index, "n_precio_producto", e.target.value)}
+              className="border w-full px-1 py-0.5  bg-gray-400 font-bold"
+            />
+          </td>
+          <td className="border p-2">
+            <input
+              type="text"
+              value={inputs[`${index}-costo_envio`] ?? item.costo_envio ?? ""}
+              onChange={(e) => handleInputChange(index, "costo_envio", e.target.value)}
+              className="border w-full px-1 py-0.5  bg-gray-400 font-bold"
+            />
+          </td>
+          <td className="border p-2">
+            <input
+              type="text"
+              value={inputs[`${index}-costo_pedido`] ?? item.costo_pedido ?? ""}
+              onChange={(e) => handleInputChange(index, "costo_pedido", e.target.value)}
+              className="border w-full px-1 py-0.5  bg-gray-400 font-bold"
+            />
+          </td>
+          <td className="border p-2">
+            <input
+              type="text"
+              value={inputs[`${index}-costo_aduana`] ?? item.costo_aduana ?? ""}
+              onChange={(e) => handleInputChange(index, "costo_aduana", e.target.value)}
+              className="border w-full px-1 py-0.5  bg-gray-400 font-bold"
+            />
+          </td>
+          <td className="border p-2 text-right">{isNaN(costo_unidad) ? "-" : costo_unidad.toFixed(2)}</td>
+          <td className="border p-2 text-right">{isNaN(costo_ml) ? "-" : costo_ml.toFixed(2)}</td>
+          <td className="border p-2 text-right">{isNaN(costo_ml2) ? "-" : costo_ml2.toFixed(2)}</td>
+          <td className="border p-2">
+            <button
+              className="bg-green-600 text-white  px-3 py-1 rounded"
+              onClick={() => handleSaveCostos(item, index)}
+            >
+              Guardar
+            </button>
+          </td>
+        </tr>
+      );
   })}
-</tbody>
-        </table>
+    </tbody>
+</table>
       );
     }
     return <div className="text-gray-500">Seleccione una opción del menú.</div>;  //pilu
