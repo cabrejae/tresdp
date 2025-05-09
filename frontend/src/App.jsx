@@ -345,7 +345,22 @@ const fetchData = async (option = selectedOption) => {
         const costoML2 = costoUnidad * (parametros?.ml2 ?? 0);
         
         return (
-          <table className="w-full border-collapse border border-gray-500 text-sm">
+          <table className="w-full table-fixed border-collapse border border-gray-500 text-sm">
+<colgroup>
+  <col style={{ width: "3rem" }} />   {/* ID */}
+  <col style={{ width: "20rem" }} />  {/* Nombre */}
+  <col style={{ width: "4rem" }} />   {/* Cantidad */}
+  <col style={{ width: "4rem" }} />   {/* Unidades */}
+  <col style={{ width: "4rem" }} />   {/* Precio */}
+  <col style={{ width: "4rem" }} />   {/* Envío */}
+  <col style={{ width: "4rem" }} />   {/* Pedido */}
+  <col style={{ width: "4rem" }} />   {/* Aduana */}
+  <col style={{ width: "3rem" }} />   {/* Costo unidad */}
+  <col style={{ width: "3rem" }} />   {/* Costo ML */}
+  <col style={{ width: "3rem" }} />   {/* Costo ML 2 */}
+  <col style={{ width: "3rem" }} />   {/* Acción */}
+</colgroup>
+
 <thead>
   {/* Fila Comparar */}
   <tr className="sticky top-0 z-20 bg-gray-700 text-white text-sm">
