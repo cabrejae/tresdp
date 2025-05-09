@@ -346,25 +346,9 @@ const fetchData = async (option = selectedOption) => {
         
         return (
           <table className="w-full border-collapse border border-gray-500 text-sm">
-            <thead>
-              <tr className="bg-gray-500">
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-12">ID</th>
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-64">Nombre</th>
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-14">Cantidad</th>
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-14">Unidades</th>
-                <th className="sticky top-0  z-10 bg-gray-800 border p-2 w-14">Precio</th>
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-14">Envío</th>
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-14">Pedido</th>
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-14">Aduana</th>
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-16">Costo unidad</th>
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-16">Costo ML</th>
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-16">Costo ML 2</th>
-                <th className="sticky top-0 z-10 bg-gray-800 border p-2 w-20">Acción</th>
-              </tr>
-            </thead>
-      <tbody>
-         {/* Fila fija de comparación */}
-  <tr className="sticky top-[40px] bg-gray-700 z-20 text-white text-sm">
+<thead>
+  {/* Fila Comparar */}
+  <tr className="sticky top-0 z-20 bg-gray-700 text-white text-sm">
     <td className="border p-2"></td>
     <td className="border p-2 font-bold">Comparar</td>
     <td className="border p-2">
@@ -373,9 +357,8 @@ const fetchData = async (option = selectedOption) => {
     <td className="border p-2">
       <input type="text" value={comparacion.unidades} onChange={(e) => handleComparacion("unidades", e.target.value)} className="w-full text-black px-1" />
     </td>
-    <td className="w-full border p-2">
-    <input type="text" value={comparacion.precio}onChange={(e) => handleComparacion("precio", e.target.value)} className="w-full text-black px-1"
-  />
+    <td className="border p-2">
+      <input type="text" value={comparacion.precio} onChange={(e) => handleComparacion("precio", e.target.value)} className="w-full text-black px-1" />
     </td>
     <td className="border p-2">
       <input type="text" value={comparacion.envio} onChange={(e) => handleComparacion("envio", e.target.value)} className="w-full text-black px-1" />
@@ -391,6 +374,25 @@ const fetchData = async (option = selectedOption) => {
     <td className="border p-2 text-right">{isNaN(costoML2) ? "-" : costoML2.toFixed(2)}</td>
     <td className="border p-2"></td>
   </tr>
+
+  {/* Fila de títulos */}
+  <tr className="sticky top-[40px] z-10 bg-gray-800 text-white text-sm">
+    <th className="border p-2 w-12">ID</th>
+    <th className="border p-2 w-64">Nombre</th>
+    <th className="border p-2 w-14">Cantidad</th>
+    <th className="border p-2 w-14">Unidades</th>
+    <th className="border p-2 w-14">Precio</th>
+    <th className="border p-2 w-14">Envío</th>
+    <th className="border p-2 w-14">Pedido</th>
+    <th className="border p-2 w-14">Aduana</th>
+    <th className="border p-2 w-16">Costo unidad</th>
+    <th className="border p-2 w-16">Costo ML</th>
+    <th className="border p-2 w-16">Costo ML 2</th>
+    <th className="border p-2 w-20">Acción</th>
+  </tr>
+</thead>
+      <tbody>
+
         {data.map((item, index) => {
           const cantidad = parseFloat(getInputs()[`${index}-cantidad`] ?? item.cantidad ?? 0) || 0;
           const unidades = parseFloat(getInputs()[`${index}-unidades`] ?? item.unidades ?? 0) || 0;
